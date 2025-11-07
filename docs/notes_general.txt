@@ -1,0 +1,6 @@
+#--- Gavin Meeker: 11/6/25 ---#
+https://data.mendeley.com/datasets/hb74ynkjcn/1fg
+
+url for dataset with healthy and diseased leaves, using it to show concept of CNN in Indoor-Gardening-Systwm
+#-----------------------------#
+
