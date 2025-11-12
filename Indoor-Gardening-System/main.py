@@ -12,11 +12,12 @@ from pathlib import Path
 #-----------------------------------------------------------#
 # Variables / Parameters
 #-----------------------------------------------------------#
-image_height = 128
-image_width = 128
+image_height = 224
+image_width = 224
 shape = (image_height, image_width, 3)
 labels = ["healthy", "diseased"]
 labels_size = len(labels)
+epochs = 10
 
 CURRENT_DIR = Path.cwd()
 DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
@@ -34,7 +35,6 @@ model = bm.build(train_set, validation_set, shape, labels_size)
 #-----------------------------------------------------------#
 # Train Model
 #-----------------------------------------------------------#
-epochs = 10
 history = model.fit(
   train_set,
   validation_data=validation_set,

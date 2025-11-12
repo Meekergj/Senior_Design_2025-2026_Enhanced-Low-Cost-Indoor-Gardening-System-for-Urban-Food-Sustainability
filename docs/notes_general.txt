@@ -1,5 +1,6 @@
 #--- Gavin Meeker: 11/6/25 ---#
-https://data.mendeley.com/datasets/hb74ynkjcn/1fg
+https://data.mendeley.com/datasets/hb74ynkjcn/1
+https://github.com/tensorflow/datasets/tree/master/tensorflow_datasets/datasets/plant_leaves
 
 url for dataset with healthy and diseased leaves, using it to show concept of CNN in Indoor-Gardening-Systwm
 #-----------------------------#

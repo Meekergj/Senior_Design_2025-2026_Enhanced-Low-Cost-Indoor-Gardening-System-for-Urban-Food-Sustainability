@@ -9,7 +9,7 @@ sut.setup(
     author='README',
     author_email='README',
     packages=['Senior_Design_2025-2026_Indoor-Gardening-System'],
-    install_requires=["tensorflow", "keras", "matplotlib"],
+    install_requires=["tensorflow", "keras", "matplotlib", "pathlib"],
     license='MIT',
     python_requres=">=3.13.7",
 )
