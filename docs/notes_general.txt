@@ -5,3 +5,9 @@ https://github.com/tensorflow/datasets/tree/master/tensorflow_datasets/datasets/
 url for dataset with healthy and diseased leaves, using it to show concept of CNN in Indoor-Gardening-Systwm
 #-----------------------------#
 
+#--- Gavin Meeker: 11/14/25 ---#
+links to possible datasets
+  https://earthpy.readthedocs.io/en/latest/gallery_vignettes/plot_calculate_classify_ndvi.html
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC11648187/
+  
+#-----------------------------#

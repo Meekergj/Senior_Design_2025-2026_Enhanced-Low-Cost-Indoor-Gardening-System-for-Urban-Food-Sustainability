@@ -4,25 +4,29 @@
 
 import tensorflow as tf
 
-from keras import datasets, layers, models
+from keras import datasets, layers, models, metrics
 import matplotlib.pyplot as plt
 
 # Get images and labels as training and validation data
-def load(data_path, image_height, image_width):
+def load(data_path, image_height, image_width, batch_size):
     # From the folder data_path get images from subfolders (labels = subfolder name)
     train_set = tf.keras.utils.image_dataset_from_directory(
                 data_path,
                 validation_split=0.3,
                 subset="training",
                 seed=448,
-                image_size=(image_height, image_width))
+                image_size=(image_height, image_width),
+                #batch_size=batch_size
+                )
     
     validation_set = tf.keras.utils.image_dataset_from_directory(
                 data_path,
                 validation_split=0.3,
                 subset="validation",
                 seed=448,
-                image_size=(image_height, image_width))
+                image_size=(image_height, image_width),
+                #batch_size=batch_size
+                )
     
     # Tensorflow magic to cache and prefetch this data, increase performance
     AUTOTUNE = tf.data.AUTOTUNE
@@ -47,7 +51,7 @@ def build(train_set, validation_set, input_shape, num_classes):
 
     # Layers of the CNN model
     model.add(layers.Conv2D(16, 5, activation='relu', input_shape=input_shape, padding='valid'))
-    model.add(layers.MaxPooling2D(2))
+    model.add(layers.MaxPooling2D(2, strides=2))
     model.add(layers.Conv2D(32, 5, activation='relu', padding='valid'))
     model.add(layers.MaxPooling2D(2))
     model.add(layers.Conv2D(64, 3, activation='relu', padding='valid'))
@@ -57,13 +61,15 @@ def build(train_set, validation_set, input_shape, num_classes):
     model.add(layers.Flatten())
     model.add(layers.Dropout(0.2))
     model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dropout(0.1))
     model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(num_classes))
+    model.add(layers.Dropout(0.1))
+    model.add(layers.Dense(num_classes, activation='softmax'))
 
     # Take the aformentioned layers of the model and compile together
-    model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+              metrics=["accuracy", tf.keras.metrics.SparseCategoricalCrossentropy()],)
 
     model.summary()
 
