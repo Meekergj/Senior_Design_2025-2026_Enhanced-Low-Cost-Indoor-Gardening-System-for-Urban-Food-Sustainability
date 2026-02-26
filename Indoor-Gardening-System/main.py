@@ -38,54 +38,83 @@ model = bm.build(train_set, validation_set, shape, labels_size)
 #-----------------------------------------------------------#
 # Train Model
 #-----------------------------------------------------------#
-cp_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=checkpoint_path,
-    monitor='val_accuracy',
-    mode='max',
-    save_best_only=True)
+def train(model, train_set, validation_set, epochs): 
+  cp_callback = tf.keras.callbacks.ModelCheckpoint(
+      filepath=checkpoint_path,
+      monitor='val_accuracy',
+      mode='max',
+      save_best_only=True)
 
-history = model.fit(
-  train_set,
-  validation_data=validation_set,
-  epochs=epochs,
-  callbacks=cp_callback,
-  #batch_size=batch_size
-)
+  history = model.fit(
+    train_set,
+    validation_data=validation_set,
+    epochs=epochs,
+    callbacks=cp_callback,
+    #batch_size=batch_size
+  )
 
-tf.keras.models.load_model(checkpoint_path)
+  tf.keras.models.load_model(checkpoint_path)
+  return history
 
 #-----------------------------------------------------------#
 # Visualize (from https://www.tensorflow.org/tutorials/images/classification)
 #-----------------------------------------------------------#
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+def visualize_training(history, epochs):
+  acc = history.history['accuracy']
+  val_acc = history.history['val_accuracy']
 
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
 
-sparse_categorical = history.history['sparse_categorical_crossentropy']
-val_sparse_categorical = history.history['val_sparse_categorical_crossentropy']
+  sparse_categorical = history.history['sparse_categorical_crossentropy']
+  val_sparse_categorical = history.history['val_sparse_categorical_crossentropy']
 
-epochs_range = range(epochs)
+  epochs_range = range(epochs)
 
-plt.figure(figsize=(8, 8))
-plt.subplot(2, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-plt.legend(loc='upper left')
-plt.title('Training and Validation Accuracy')
+  plt.figure(figsize=(8, 8))
+  plt.subplot(2, 2, 1)
+  plt.plot(epochs_range, acc, label='Training Accuracy')
+  plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+  plt.legend(loc='upper left')
+  plt.title('Training and Validation Accuracy')
 
-plt.subplot(2, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
+  plt.subplot(2, 2, 2)
+  plt.plot(epochs_range, loss, label='Training Loss')
+  plt.plot(epochs_range, val_loss, label='Validation Loss')
+  plt.legend(loc='upper right')
+  plt.title('Training and Validation Loss')
 
-plt.subplot(2, 2, 3)
-plt.plot(epochs_range, sparse_categorical, label='Training Cross Entropy')
-plt.plot(epochs_range, val_sparse_categorical, label='Validation Cross Entropy')
-plt.legend(loc='lower left')
-plt.title('Training and Validation Cross Entropy')
-plt.show()
+  plt.subplot(2, 2, 3)
+  plt.plot(epochs_range, sparse_categorical, label='Training Cross Entropy')
+  plt.plot(epochs_range, val_sparse_categorical, label='Validation Cross Entropy')
+  plt.legend(loc='lower left')
+  plt.title('Training and Validation Cross Entropy')
+  plt.show()
 
-um.menu(model, history)
+# after model is done training and compiling give user option in the console
+# to save it, load one, test a model, or exit
+def menu(model):
+    keep_going = True
+    while (keep_going == True):
+        print(um.commands_str)
+        user_input = input("Enter Command: ")
+        match user_input.lower():
+            case "save":
+                um.save_model(model)
+            case "load":
+                model = um.load_model()
+            case "test":
+                um.test_model(model, shape, labels)
+            case "train":
+              history = train(model, train_set, validation_set, epochs)
+              visualize_training(history, epochs)
+            case "exit":
+                keep_going = False
+                break
+            case "x":
+                keep_going = False
+                break
+            case _:
+                print("\nCommand Unrecognized or Misspelled\n")
+
+menu(model)
