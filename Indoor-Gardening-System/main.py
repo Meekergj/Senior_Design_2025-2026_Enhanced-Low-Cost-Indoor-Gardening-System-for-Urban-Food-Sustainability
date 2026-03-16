@@ -15,10 +15,10 @@ from pathlib import Path
 #-----------------------------------------------------------#
 image_height = 224
 image_width = 224
-shape = (image_height, image_width, 3)
-labels = ["healthy", "diseased"]
+shape = (image_height, image_width, 4, )
+labels = ["Hydration", "Nutrution", "Lighting"]
 labels_size = len(labels)
-batch_size = None
+batch_size = 1
 epochs = 10
 
 CURRENT_DIR = Path.cwd()
@@ -26,14 +26,17 @@ DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
 CHECKPOINT_DIR = CURRENT_DIR / "models" / "checkpoints"
 checkpoint_path = CHECKPOINT_DIR / "checkpoint.model.keras"
 EXPORT_DIR = CURRENT_DIR / "tests" / "models"
+LABEL_DIR = CURRENT_DIR / "data" / "Test Labels"
+NPY_DIR = CURRENT_DIR / "data" / "Test Numpy"
 
 #-----------------------------------------------------------#
 # Build and Compile Model
 #-----------------------------------------------------------#
 #data_path = tf.keras.utils.get_file(DATA_DIR, extract=True)
 #data_path = Path(data_path).with_suffix('')
-train_set, validation_set = bm.load(DATA_DIR, image_height, image_width, batch_size)
-model = bm.build(train_set, validation_set, shape, labels_size)
+#train_set, validation_set = bm.load(DATA_DIR, image_height, image_width, batch_size)
+train_set, validation_set = bm.load2(NPY_DIR, LABEL_DIR, image_height, image_width, batch_size)
+model = bm.build(shape, labels_size)
 
 #-----------------------------------------------------------#
 # Train Model
@@ -50,7 +53,7 @@ def train(model, train_set, validation_set, epochs):
     validation_data=validation_set,
     epochs=epochs,
     callbacks=cp_callback,
-    #batch_size=batch_size
+    batch_size=batch_size
   )
 
   tf.keras.models.load_model(checkpoint_path)

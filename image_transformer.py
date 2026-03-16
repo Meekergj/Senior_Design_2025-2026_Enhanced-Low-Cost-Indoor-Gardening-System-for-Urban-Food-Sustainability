@@ -13,15 +13,11 @@ from keras.utils import img_to_array
 CURRENT_DIR = Path.cwd()
 INPUT_DIR = CURRENT_DIR / "data" / "Test Indices"
 EXPORT_DIR = CURRENT_DIR / "data" / "Test Numpy"
+image_height = 224
+image_width = 224
 
 # Import images of 4 indices that have the same number id from INPUT_DIR
 # Example Format: 00001 - dd/mm/yy - NDVI | 00001 - dd/mm/yy - PRI | ...
-#while True:
-#    id_first = str(input("Input the 5 digit first part of the id: "))
-#    if len(id_first) == 5:
-#        break
-#    print("\nThis input is the wrong size! (5 digits)\n")
-
 input_names = []
 input_id_index_file = []
 for file in os.scandir(INPUT_DIR):
@@ -63,7 +59,7 @@ for uid in unique_ids:
 four_index_img = []
 for fin in four_index_names:
     try:
-        four_index_img.append([[load_img(INPUT_DIR/i, 'grayscale') for i in fin[0:4]], fin[4]])
+        four_index_img.append([[load_img(INPUT_DIR/i, 'grayscale', target_size=(image_height, image_width)) for i in fin[0:4]], fin[4]])
     except:
         print("four_index_img creation did a bad")
 
