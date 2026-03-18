@@ -11,3 +11,8 @@ links to possible datasets
   https://pmc.ncbi.nlm.nih.gov/articles/PMC11648187/
   
 #-----------------------------#
+
+#--- Gavin Meeker: 11/14/25 ---#
+use the command (pipreqs --force --ignore ".venv") to get requirements.txt
+use the command (pip install -r requirements.txt) to install packages in the file
+#-----------------------------#

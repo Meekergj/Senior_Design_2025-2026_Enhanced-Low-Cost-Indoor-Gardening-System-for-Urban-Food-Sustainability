@@ -17,7 +17,7 @@ image_height = 224
 image_width = 224
 shape = (image_height, image_width, 4, )
 labels = ["Hydration", "Nutrution", "Lighting"]
-labels_size = len(labels)
+num_labels = len(labels)
 batch_size = 1
 epochs = 10
 
@@ -35,8 +35,8 @@ NPY_DIR = CURRENT_DIR / "data" / "Test Numpy"
 #data_path = tf.keras.utils.get_file(DATA_DIR, extract=True)
 #data_path = Path(data_path).with_suffix('')
 #train_set, validation_set = bm.load(DATA_DIR, image_height, image_width, batch_size)
-train_set, validation_set = bm.load2(NPY_DIR, LABEL_DIR, image_height, image_width, batch_size)
-model = bm.build(shape, labels_size)
+train_set, validation_set = bm.load(NPY_DIR, LABEL_DIR, image_height, image_width, batch_size)
+model = bm.build(shape, num_labels)
 
 #-----------------------------------------------------------#
 # Train Model
@@ -69,8 +69,8 @@ def visualize_training(history, epochs):
   loss = history.history['loss']
   val_loss = history.history['val_loss']
 
-  sparse_categorical = history.history['sparse_categorical_crossentropy']
-  val_sparse_categorical = history.history['val_sparse_categorical_crossentropy']
+  mean_square = history.history['mse']
+  val_mean_square = history.history['val_mse']
 
   epochs_range = range(epochs)
 
@@ -88,12 +88,17 @@ def visualize_training(history, epochs):
   plt.title('Training and Validation Loss')
 
   plt.subplot(2, 2, 3)
-  plt.plot(epochs_range, sparse_categorical, label='Training Cross Entropy')
-  plt.plot(epochs_range, val_sparse_categorical, label='Validation Cross Entropy')
+  plt.plot(epochs_range, mean_square, label='Training MSE')
+  plt.plot(epochs_range, val_mean_square, label='Validation MSE')
   plt.legend(loc='lower left')
-  plt.title('Training and Validation Cross Entropy')
+  plt.title('Training and Validation MSE')
   plt.show()
 
+import pkg_resources
+
+installed_packages = pkg_resources.working_set
+for package in installed_packages:
+    print(f"{package.key}=={package.version}")
 # after model is done training and compiling give user option in the console
 # to save it, load one, test a model, or exit
 def menu(model):
