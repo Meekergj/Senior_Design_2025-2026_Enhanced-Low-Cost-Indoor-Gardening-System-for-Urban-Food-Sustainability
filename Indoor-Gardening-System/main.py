@@ -94,11 +94,6 @@ def visualize_training(history, epochs):
   plt.title('Training and Validation MSE')
   plt.show()
 
-import pkg_resources
-
-installed_packages = pkg_resources.working_set
-for package in installed_packages:
-    print(f"{package.key}=={package.version}")
 # after model is done training and compiling give user option in the console
 # to save it, load one, test a model, or exit
 def menu(model):
