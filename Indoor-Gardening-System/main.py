@@ -3,22 +3,22 @@
 #
 
 import tensorflow as tf
-
-from keras import datasets, layers, models
-import build_model as bm
-import user_menu as um
 import matplotlib.pyplot as plt
 from pathlib import Path
+
+import build_model as bm
+import user_menu as um
 
 #-----------------------------------------------------------#
 # Variables / Parameters
 #-----------------------------------------------------------#
 image_height = 224
 image_width = 224
-shape = (image_height, image_width, 3)
-labels = ["healthy", "diseased"]
-labels_size = len(labels)
-batch_size = None
+num_indices = 4
+shape = (image_height, image_width, num_indices, )
+labels = ["Hydration", "Nutrution", "Lighting"]
+num_labels = len(labels)
+batch_size = 1
 epochs = 10
 
 CURRENT_DIR = Path.cwd()
@@ -26,14 +26,14 @@ DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
 CHECKPOINT_DIR = CURRENT_DIR / "models" / "checkpoints"
 checkpoint_path = CHECKPOINT_DIR / "checkpoint.model.keras"
 EXPORT_DIR = CURRENT_DIR / "tests" / "models"
+LABEL_DIR = CURRENT_DIR / "data" / "Test Labels"
+NPY_DIR = CURRENT_DIR / "data" / "Test Numpy"
 
 #-----------------------------------------------------------#
 # Build and Compile Model
 #-----------------------------------------------------------#
-#data_path = tf.keras.utils.get_file(DATA_DIR, extract=True)
-#data_path = Path(data_path).with_suffix('')
-train_set, validation_set = bm.load(DATA_DIR, image_height, image_width, batch_size)
-model = bm.build(train_set, validation_set, shape, labels_size)
+train_set, validation_set = bm.load(NPY_DIR, LABEL_DIR, image_height, image_width, batch_size)
+model = bm.build(shape, num_labels)
 
 #-----------------------------------------------------------#
 # Train Model
@@ -50,7 +50,7 @@ def train(model, train_set, validation_set, epochs):
     validation_data=validation_set,
     epochs=epochs,
     callbacks=cp_callback,
-    #batch_size=batch_size
+    batch_size=batch_size
   )
 
   tf.keras.models.load_model(checkpoint_path)
@@ -66,8 +66,8 @@ def visualize_training(history, epochs):
   loss = history.history['loss']
   val_loss = history.history['val_loss']
 
-  sparse_categorical = history.history['sparse_categorical_crossentropy']
-  val_sparse_categorical = history.history['val_sparse_categorical_crossentropy']
+  mean_square = history.history['mse']
+  val_mean_square = history.history['val_mse']
 
   epochs_range = range(epochs)
 
@@ -85,10 +85,10 @@ def visualize_training(history, epochs):
   plt.title('Training and Validation Loss')
 
   plt.subplot(2, 2, 3)
-  plt.plot(epochs_range, sparse_categorical, label='Training Cross Entropy')
-  plt.plot(epochs_range, val_sparse_categorical, label='Validation Cross Entropy')
+  plt.plot(epochs_range, mean_square, label='Training MSE')
+  plt.plot(epochs_range, val_mean_square, label='Validation MSE')
   plt.legend(loc='lower left')
-  plt.title('Training and Validation Cross Entropy')
+  plt.title('Training and Validation MSE')
   plt.show()
 
 # after model is done training and compiling give user option in the console

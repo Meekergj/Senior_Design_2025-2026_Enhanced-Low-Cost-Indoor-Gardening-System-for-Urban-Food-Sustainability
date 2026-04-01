@@ -6,9 +6,8 @@ import tensorflow as tf
 from pathlib import Path
 import numpy as np
 from keras import datasets, layers, models
-from keras.preprocessing.image import load_img
-from keras.utils import img_to_array
 import traceback
+import os
 
 CURRENT_DIR = Path.cwd()
 EXPORT_DIR = CURRENT_DIR / "tests" / "models"
@@ -42,21 +41,23 @@ def load_model():
         print("\nThat file does not exist! (" + str(export_path) + ")\n")
         traceback.print_exc()
 
-def test_model(model, shape, labels):
-    folder_name = str(input("\nInput the name of the folder the image is inside of (excluding the path): "))
+def test_model(model, image_shape, labels):
+    folder_name = str(input("\nInput the name of the folder in the /data/ directory the npy file is inside of: "))
     folder_path = DATA_DIR / folder_name
-    image_name = str(input("\nInput the name of the image file you want to test on the loaded model: "))
-    image_path = folder_path / image_name
+    npy_name = str(input("\nInput the name of the npy file you want to test on the loaded model: "))
+    npy_path = folder_path / npy_name
 
     try:
-        # Load image as PIL then convert to numpy array for predict method
-        loaded_image = load_img(image_path, target_size=shape)
-        image_nparr = img_to_array(loaded_image)
-        image_nparr = np.array([image_nparr])  # Convert single image to a batch.
-        predictions = model.predict(image_nparr)
+        # Load image(s) in the form of a numpy matrix then convert to numpy array for predict method
+        loaded_npy = np.load(npy_path)
+        image_height = image_shape[0]
+        image_width = image_shape[1]
+        npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, (image_height, image_width))
+        npy_nparr = np.array([npy_nparr])  # Convert single image to a batch.
+        predictions = model.predict(npy_nparr)
 
-        highest_prediction = np.argmax(predictions[0])
-        print(labels[highest_prediction] + "\n")
+        print("Labels: " + str(labels) + "\n")
+        print("Predictions: " + str(predictions) + "\n")
     except:
-        print("\nThat folder or image file does not exist! (" + str(image_path) + ")\n")
-        traceback.print_exc()
+        print("\nThat folder or image file does not exist! (" + str(npy_path) + ")\n")
+        print(traceback.format_exc())
