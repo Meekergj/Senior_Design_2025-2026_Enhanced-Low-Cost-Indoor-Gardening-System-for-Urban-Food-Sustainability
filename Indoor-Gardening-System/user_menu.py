@@ -50,11 +50,14 @@ def test_model(model, image_shape, labels):
     try:
         # Load image(s) in the form of a numpy matrix then convert to numpy array for predict method
         loaded_npy = np.load(npy_path)
-        npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, image_shape)
+        image_height = image_shape[0]
+        image_width = image_shape[1]
+        npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, (image_height, image_width))
         npy_nparr = np.array([npy_nparr])  # Convert single image to a batch.
         predictions = model.predict(npy_nparr)
 
-        print(labels + "\n")
-        print(predictions + "\n")
+        print("Labels: " + str(labels) + "\n")
+        print("Predictions: " + str(predictions) + "\n")
     except:
         print("\nThat folder or image file does not exist! (" + str(npy_path) + ")\n")
+        print(traceback.format_exc())

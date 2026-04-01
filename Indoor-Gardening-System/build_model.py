@@ -10,6 +10,8 @@ import numpy as np
 import os
 import csv
 
+csv_labels_filename = 'Hydroponic Bot Test Sheet.csv'
+
 # Helper method, places npy files into single (resized) matrix
 def npy_to_matrix(npy_path, image_height, image_width):
     out = [] # rough format (matrixN[file info, file ID], ...)
@@ -20,9 +22,7 @@ def npy_to_matrix(npy_path, image_height, image_width):
     return out
 
 # Helper method, gets IDs/labels from csv file and places into dictionary (exclues ids not in examples)
-def csv_labels(labels_path, examples_keys):
-    csv_file_name = 'Hydroponic Bot Test Sheet.csv'
-
+def csv_labels(labels_path, examples_keys, csv_file_name):
     out = [] # rough format (arrayN[labels, file ID])
     with open(labels_path / csv_file_name, mode = 'r') as file:
         csv_reader = csv.reader(file)
@@ -40,7 +40,7 @@ def load(npy_path, labels_path, image_height, image_width, batch_size):
     examples = npy_to_matrix(npy_path, image_height, image_width)
 
     # Load labels from .csv file
-    labels = csv_labels(labels_path, examples.keys())
+    labels = csv_labels(labels_path, examples.keys(), csv_labels_filename)
 
     # Sort examples and labels by ID number
     sorted_examples = {k: v for k, v in sorted(examples.items(), key=lambda item: item[0])}
@@ -81,17 +81,58 @@ def build(input_shape, num_labels):
     x = layers.RandomZoom(0.2)(x)
 
     # Layers of the CNN model
-    x = layers.Conv2D(16, 5, activation='relu', input_shape=input_shape, padding='valid')(x)
+    x = layers.Conv2D(filters=16, kernel_size=5, activation='relu', input_shape=input_shape, padding='valid')(x)
     x = layers.MaxPooling2D(2, strides=2)(x)
-    x = layers.Conv2D(32, 5, activation='relu', padding='valid')(x)
+    x = layers.Conv2D(filters=32, kernel_size=5, activation='relu', padding='valid')(x)
     x = layers.MaxPooling2D(2)(x)
-    x = layers.Conv2D(64, 3, activation='relu', padding='valid')(x)
+    x = layers.Conv2D(filters=64, kernel_size=3, activation='relu', padding='valid')(x)
     x = layers.MaxPooling2D(2)(x)
-    x = layers.Conv2D(72, 3, activation='relu', padding='valid')(x)
+    x = layers.Conv2D(filters=72, kernel_size=3, activation='relu', padding='valid')(x)
     x = layers.MaxPooling2D(2)(x)
     x = layers.Flatten()(x)
     x = layers.Dropout(0.2)(x)
     x = layers.Dense(64, activation='relu')(x)
+    x = layers.Dropout(0.1)(x)
+    x = layers.Dense(64, activation='relu')(x)
+    x = layers.Dropout(0.1)(x)
+
+    # Outputs (predicted value of each label)
+    model_output = layers.Dense(num_labels, activation='linear')(x)
+
+    # Build the model
+    model = models.Model(inputs=model_input, outputs=model_output)
+
+    # Take the model and compile
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=tf.keras.losses.MeanSquaredError(),
+        metrics=["accuracy", "mse"],)
+
+    model.summary()
+
+    return model
+
+# Convolutional Neural Net using 2D depthwise convolution
+def build_depthwise(input_shape, num_labels):
+    model_input = layers.Input(shape=input_shape)
+
+    # Slightly randomizes the input to prevent overfitting and increase accuracy
+    x = layers.RandomFlip("horizontal")(model_input)
+    x = layers.RandomRotation(0.2)(x)
+    x = layers.RandomZoom(0.2)(x)
+
+    # Layers of the CNN model
+    x = layers.DepthwiseConv2D(depth_multiplier=8, kernel_size=5, activation='relu', input_shape=input_shape, padding='valid')(x)
+    x = layers.MaxPooling2D(pool_size=2, strides=2)(x)
+    x = layers.DepthwiseConv2D(depth_multiplier=16, kernel_size=5, activation='relu', padding='valid')(x)
+    x = layers.MaxPooling2D(pool_size=2)(x)
+    x = layers.DepthwiseConv2D(depth_multiplier=16, kernel_size=3, activation='relu', padding='valid')(x)
+    x = layers.MaxPooling2D(pool_size=2)(x)
+    x = layers.DepthwiseConv2D(depth_multiplier=16, kernel_size=3, activation='relu', padding='valid')(x)
+    x = layers.MaxPooling2D(pool_size=2)(x)
+    x = layers.Flatten()(x)
+    x = layers.Dropout(0.2)(x)
+    x = layers.Dense(32)(x)
     x = layers.Dropout(0.1)(x)
     x = layers.Dense(64, activation='relu')(x)
     x = layers.Dropout(0.1)(x)
