@@ -9,14 +9,14 @@ from keras.preprocessing.image import load_img
 from keras.utils import img_to_array
 
 CURRENT_DIR = Path.cwd()
-INPUT_DIR = CURRENT_DIR / "data" / "Test Indices"
-EXPORT_DIR = CURRENT_DIR / "data" / "Test Numpy"
+INPUT_DIR = CURRENT_DIR / "data" / "Indices"
+EXPORT_DIR = CURRENT_DIR / "data" / "Numpy"
 image_height = 224
 image_width = 224
 
-# Import images of 4 indices that have the same number id from INPUT_DIR
+# Import images of N indices that have the same number id from INPUT_DIR
 # Example Format: 00001 - dd/mm/yy - NDVI | 00001 - dd/mm/yy - PRI | ...
-def files_to_names(input_dir, indices="ndvi"):
+def files_to_names(input_dir):
     input_names = []
     input_id_index_name = []
     for file in os.scandir(input_dir):
@@ -34,27 +34,24 @@ def files_to_names(input_dir, indices="ndvi"):
     index_names = []
     unique_ids = set([i[0] for i in input_id_index_name]) # makes sure each id has all of its indices checked
     for uid in unique_ids:
-        ndvi = ""
-        ari = ""
-        pri = ""
+        rgb = ""
+        gndvi = ""
         sipi = ""
         for i in input_id_index_name:
-            if i[0] == uid and i[1].lower().__eq__("ndvi"):
-                ndvi = i[2]
-            elif i[0] == uid and i[1].lower().__eq__("ari"):
-                ari = i[2]
-            elif i[0] == uid and i[1].lower().__eq__("pri"):
-                pri = i[2]
-            elif i[0] == uid and i[1].lower().__eq__("sipi"): 
+            if i[0] == uid and i[1].lower().__eq__("rgb"):
+                rgb = i[2]
+            elif i[0] == uid and i[1].lower().__eq__("sipi"):
                 sipi = i[2]
+            elif i[0] == uid and i[1].lower().__eq__("gndvi"):
+                gndvi = i[2]
             
-        if ndvi != "" and ari != "" and pri != "" and sipi != "":
+        if rgb != ""  and sipi != "" and gndvi != "":
             # This order matters (uid is for keeping track of id for later)!
-            index_names.append([ndvi, ari, pri, sipi, uid])
+            index_names.append([rgb, sipi, gndvi, uid])
     return index_names
 
-# Import images of 4 indices that have the same number id from INPUT_DIR, but only ndvi
-def files_to_names_ndvi(input_dir):
+# Import images of N indices that have the same number id from INPUT_DIR, but only ndvi
+def files_to_names_gndvi(input_dir):
     input_names = []
     input_id_index_name = []
     for file in os.scandir(input_dir):
@@ -72,7 +69,7 @@ def files_to_names_ndvi(input_dir):
     index_names = []
     unique_ids = set([i[0] for i in input_id_index_name]) # makes sure each id has all of its indices checked
     for uid in unique_ids:
-        ndvi = ""
+        gndvi = ""
         for i in input_id_index_name:
             if i[0] == uid and i[1].lower().__eq__("gndvi"):
                     ndvi = i[2]
@@ -108,5 +105,5 @@ def images_to_npy(index_names, input_dir, export_dir):
     for mim in multi_index_matrices:
         np.save(file=export_dir / str(mim[1]), arr=mim[0])
 
-index_names = files_to_names_ndvi(input_dir=Path.cwd()/"data"/"NDVI Indices")
-images_to_npy(index_names, input_dir=Path.cwd()/"data"/"NDVI Indices", export_dir=EXPORT_DIR)
+index_names = files_to_names(input_dir=INPUT_DIR)
+images_to_npy(index_names, input_dir=INPUT_DIR, export_dir=EXPORT_DIR)

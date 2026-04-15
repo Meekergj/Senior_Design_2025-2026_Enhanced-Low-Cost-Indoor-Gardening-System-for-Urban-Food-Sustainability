@@ -14,20 +14,20 @@ import user_menu as um
 #-----------------------------------------------------------#
 image_height = 224
 image_width = 224
-num_indices = 4
+num_indices = 3
 shape = (image_height, image_width, num_indices, )
-labels = ["Hydration", "Nutrution", "Lighting"]
+labels = ["Hydration", "Nutrition", "Lighting"]
 num_labels = len(labels)
-batch_size = 1
-epochs = 10
+batch_size = 10
+epochs = 50
 
 CURRENT_DIR = Path.cwd()
-DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
+TEST_DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
 CHECKPOINT_DIR = CURRENT_DIR / "models" / "checkpoints"
 checkpoint_path = CHECKPOINT_DIR / "checkpoint.model.keras"
 EXPORT_DIR = CURRENT_DIR / "tests" / "models"
-LABEL_DIR = CURRENT_DIR / "data" / "Test Labels"
-NPY_DIR = CURRENT_DIR / "data" / "Test Numpy"
+LABEL_DIR = CURRENT_DIR / "data" / "Labels"
+NPY_DIR = CURRENT_DIR / "data" / "Numpy"
 
 #-----------------------------------------------------------#
 # Build and Compile Model
@@ -46,7 +46,7 @@ def train(model, train_set, validation_set, epochs):
       save_best_only=True)
 
   history = model.fit(
-    train_set,
+    x=train_set,
     validation_data=validation_set,
     epochs=epochs,
     callbacks=cp_callback,

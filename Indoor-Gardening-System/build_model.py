@@ -10,7 +10,7 @@ import numpy as np
 import os
 import csv
 
-csv_labels_filename = 'Hydroponic Bot Test Sheet.csv'
+csv_labels_filename = 'Image Label and IDs.csv'
 
 # Helper method, places npy files into single (resized) matrix
 def npy_to_matrix(npy_path, image_height, image_width):
@@ -62,7 +62,7 @@ def load(npy_path, labels_path, image_height, image_width, batch_size):
 
     # Tensorflow magic to cache and prefetch this data, increase performance
     AUTOTUNE = tf.data.AUTOTUNE
-    train_set = train_set.batch(batch_size).cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    train_set = train_set.shuffle(1000).batch(batch_size).cache().prefetch(buffer_size=AUTOTUNE)
     validation_set = validation_set.batch(batch_size).cache().prefetch(buffer_size=AUTOTUNE)
 
     # convert pixels from [0 255] to [0 1], easier on neural net
@@ -76,17 +76,19 @@ def build(input_shape, num_labels):
     model_input = layers.Input(shape=input_shape)
 
     # Slightly randomizes the input to prevent overfitting and increase accuracy
-    x = layers.RandomFlip("horizontal")(model_input)
-    x = layers.RandomRotation(0.2)(x)
-    x = layers.RandomZoom(0.2)(x)
+    x = layers.RandomFlip(mode="horizontal_and_vertical")(model_input)
+    x = layers.RandomRotation(factor=0.2)(x)
+    x = layers.RandomZoom(height_factor=0.2, width_factor=0.2)(x)
 
     # Layers of the CNN model
     x = layers.Conv2D(filters=16, kernel_size=5, activation='relu', input_shape=input_shape, padding='valid')(x)
     x = layers.MaxPooling2D(2, strides=2)(x)
     x = layers.Conv2D(filters=32, kernel_size=5, activation='relu', padding='valid')(x)
+    x = layers.Dropout(0.1)(x)
     x = layers.MaxPooling2D(2)(x)
     x = layers.Conv2D(filters=64, kernel_size=3, activation='relu', padding='valid')(x)
-    x = layers.MaxPooling2D(2)(x)
+    x = layers.Dropout(0.1)(x)
+    #x = layers.MaxPooling2D(2)(x)
     x = layers.Conv2D(filters=72, kernel_size=3, activation='relu', padding='valid')(x)
     x = layers.MaxPooling2D(2)(x)
     x = layers.Flatten()(x)
@@ -97,7 +99,7 @@ def build(input_shape, num_labels):
     x = layers.Dropout(0.1)(x)
 
     # Outputs (predicted value of each label)
-    model_output = layers.Dense(num_labels, activation='linear')(x)
+    model_output = layers.Dense(num_labels, activation='sigmoid')(x)
 
     # Build the model
     model = models.Model(inputs=model_input, outputs=model_output)
@@ -138,7 +140,7 @@ def build_depthwise(input_shape, num_labels):
     x = layers.Dropout(0.1)(x)
 
     # Outputs (predicted value of each label)
-    model_output = layers.Dense(num_labels, activation='linear')(x)
+    model_output = layers.Dense(num_labels, activation='sigmoid')(x)
 
     # Build the model
     model = models.Model(inputs=model_input, outputs=model_output)
