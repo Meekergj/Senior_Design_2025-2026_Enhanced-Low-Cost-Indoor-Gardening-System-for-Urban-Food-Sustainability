@@ -18,7 +18,7 @@ num_indices = 3
 shape = (image_height, image_width, num_indices, )
 labels = ["Hydration", "Nutrition", "Lighting"]
 num_labels = len(labels)
-batch_size = 10
+batch_size = 1
 epochs = 50
 
 CURRENT_DIR = Path.cwd()
