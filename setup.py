@@ -4,7 +4,7 @@ import setuptools as sut
 # Note this will require a setuptools bdist_wheel or similar function later
 sut.setup(
     name='Senior_Design_2025-2026_Indoor-Gardening-System',
-    version='0.1',
+    version='0.2',
     description='Program for for identifying the health of crops using AI imaging',
     author='README',
     author_email='README',

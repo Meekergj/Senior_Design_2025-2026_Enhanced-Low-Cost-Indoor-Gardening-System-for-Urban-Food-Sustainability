@@ -1,6 +1,7 @@
-# Copyright info and other stuff
-#
-#
+# Filename: user_menu.py
+# Author: Gavin Meeker
+# Created: 2025-11-14
+# Description: Contains helper functions for main.py which creates and operates the user menu in terminal.
 
 import tensorflow as tf
 from pathlib import Path
@@ -44,20 +45,25 @@ def load_model():
 def test_model(model, image_shape, labels):
     folder_name = str(input("\nInput the name of the folder in the /data/ directory the npy file is inside of: "))
     folder_path = DATA_DIR / folder_name
-    npy_name = str(input("\nInput the name of the npy file you want to test on the loaded model: "))
-    npy_path = folder_path / npy_name
 
-    try:
-        # Load image(s) in the form of a numpy matrix then convert to numpy array for predict method
-        loaded_npy = np.load(npy_path)
-        image_height = image_shape[0]
-        image_width = image_shape[1]
-        npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, (image_height, image_width))
-        npy_nparr = np.array([npy_nparr])  # Convert single image to a batch.
-        predictions = model.predict(npy_nparr)
+    while True:
+        npy_name = str(input("\nInput the name of the npy file you want to test on the loaded model ('x' to exit): "))
+        npy_path = folder_path / npy_name
 
-        print("Labels: " + str(labels) + "\n")
-        print("Predictions: " + str(predictions) + "\n")
-    except:
-        print("\nThat folder or image file does not exist! (" + str(npy_path) + ")\n")
-        print(traceback.format_exc())
+        if npy_name.lower() == "x":
+            break
+
+        try:
+            # Load image(s) in the form of a numpy matrix then convert to numpy array for predict method
+            loaded_npy = np.load(npy_path)
+            image_height = image_shape[0]
+            image_width = image_shape[1]
+            npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, (image_height, image_width))
+            npy_nparr = np.array([npy_nparr])  # Convert single image to a batch.
+            predictions = model.predict(npy_nparr)
+
+            print("Labels: " + str(labels) + "\n")
+            print("Predictions: " + str(predictions) + "\n")
+        except:
+            print("\nThat folder or image file does not exist! (" + str(npy_path) + ")\n")
+            print(traceback.format_exc())

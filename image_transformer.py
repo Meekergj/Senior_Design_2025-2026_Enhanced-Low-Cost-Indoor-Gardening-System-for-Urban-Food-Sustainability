@@ -1,6 +1,7 @@
-# Copyright info and other stuff
-#
-#
+# Filename: image_transformer.py
+# Author: Gavin Meeker
+# Created: 2026-02-26
+# Description: Converts images in INPUT_DIR into numpy matrices placed in the EXPORT_DIR
 
 import os
 from pathlib import Path

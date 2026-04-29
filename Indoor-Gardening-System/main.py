@@ -1,6 +1,8 @@
-# Copyright info and other stuff
-#
-#
+# Filename: main.py
+# Author: Gavin Meeker
+# Created: 2025-10-15
+# Description: File where code is executed and primary variables and model
+#              parameters are set.
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -18,8 +20,8 @@ num_indices = 3
 shape = (image_height, image_width, num_indices, )
 labels = ["Hydration", "Nutrition", "Lighting"]
 num_labels = len(labels)
-batch_size = 1
-epochs = 50
+batch_size = 3
+epochs = 100
 
 CURRENT_DIR = Path.cwd()
 TEST_DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
@@ -41,8 +43,8 @@ model = bm.build(shape, num_labels)
 def train(model, train_set, validation_set, epochs): 
   cp_callback = tf.keras.callbacks.ModelCheckpoint(
       filepath=checkpoint_path,
-      monitor='val_accuracy',
-      mode='max',
+      monitor='val_loss', 
+      mode='min', #minimize loss or maximize accuracy
       save_best_only=True)
 
   history = model.fit(
