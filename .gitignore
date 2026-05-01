@@ -5,7 +5,6 @@ data/Test Indices/
 data/Test Labels/
 data/NDVI Indices/
 data/Numpy/*
-!data/Numpy/
 data/Indices/*
 !data/Indices/.gitkeep.txt
 data/Labels/*
