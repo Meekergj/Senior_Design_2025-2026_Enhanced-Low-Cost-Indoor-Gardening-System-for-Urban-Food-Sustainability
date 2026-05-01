@@ -18,8 +18,9 @@ csv_labels_filename = 'Image Label and IDs.csv'
 def npy_to_matrix(npy_path, image_height, image_width):
     out = [] # rough format (matrixN[file info, file ID], ...)
     for file in os.scandir(npy_path):
-        loaded_np = np.load(npy_path / file.name)
-        out.append([tf.keras.preprocessing.image.smart_resize(loaded_np, (image_height, image_width)), str(file.name.split(os.extsep)[0])])
+        if file.name.split(os.extsep)[1] == "npy":  
+            loaded_np = np.load(npy_path / file.name)
+            out.append([tf.keras.preprocessing.image.smart_resize(loaded_np, (image_height, image_width)), str(file.name.split(os.extsep)[0])])
     out = {id: matrix for matrix, id in out} # format {key: ID | value: image matrix}
     return out
 
