@@ -21,7 +21,7 @@ shape = (image_height, image_width, num_indices, )
 labels = ["Hydration", "Nutrition", "Lighting"]
 num_labels = len(labels)
 batch_size = 3
-epochs = 100
+epochs = 50
 
 CURRENT_DIR = Path.cwd()
 TEST_DATA_DIR = CURRENT_DIR / "data" / "Gauva (P3)"
@@ -43,7 +43,7 @@ model = bm.build(shape, num_labels)
 def train(model, train_set, validation_set, epochs): 
   cp_callback = tf.keras.callbacks.ModelCheckpoint(
       filepath=checkpoint_path,
-      monitor='val_loss', 
+      monitor='val_mse', 
       mode='min', #minimize loss or maximize accuracy
       save_best_only=True)
 
@@ -52,7 +52,8 @@ def train(model, train_set, validation_set, epochs):
     validation_data=validation_set,
     epochs=epochs,
     callbacks=cp_callback,
-    batch_size=batch_size
+    batch_size=batch_size,
+    verbose=2
   )
 
   tf.keras.models.load_model(checkpoint_path)
@@ -62,36 +63,53 @@ def train(model, train_set, validation_set, epochs):
 # Visualize (from https://www.tensorflow.org/tutorials/images/classification)
 #-----------------------------------------------------------#
 def visualize_training(history, epochs):
-  acc = history.history['accuracy']
-  val_acc = history.history['val_accuracy']
+    # Total model loss
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
 
-  loss = history.history['loss']
-  val_loss = history.history['val_loss']
+    # Individual output MSE metrics
+    hydration_mse = history.history['hydration_mse']
+    val_hydration_mse = history.history['val_hydration_mse']
 
-  mean_square = history.history['mse']
-  val_mean_square = history.history['val_mse']
+    nutrition_mse = history.history['nutrition_mse']
+    val_nutrition_mse = history.history['val_nutrition_mse']
 
-  epochs_range = range(epochs)
+    lighting_mse = history.history['lighting_mse']
+    val_lighting_mse = history.history['val_lighting_mse']
 
-  plt.figure(figsize=(8, 8))
-  plt.subplot(2, 2, 1)
-  plt.plot(epochs_range, acc, label='Training Accuracy')
-  plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-  plt.legend(loc='upper left')
-  plt.title('Training and Validation Accuracy')
+    epochs_range = range(epochs)
 
-  plt.subplot(2, 2, 2)
-  plt.plot(epochs_range, loss, label='Training Loss')
-  plt.plot(epochs_range, val_loss, label='Validation Loss')
-  plt.legend(loc='upper right')
-  plt.title('Training and Validation Loss')
+    plt.figure(figsize=(14, 10))
 
-  plt.subplot(2, 2, 3)
-  plt.plot(epochs_range, mean_square, label='Training MSE')
-  plt.plot(epochs_range, val_mean_square, label='Validation MSE')
-  plt.legend(loc='lower left')
-  plt.title('Training and Validation MSE')
-  plt.show()
+    # Total Loss
+    plt.subplot(2, 2, 1)
+    plt.plot(epochs_range, loss, label='Training Loss')
+    plt.plot(epochs_range, val_loss, label='Validation Loss')
+    plt.legend(loc='upper right')
+    plt.title('Total Training and Validation Loss')
+
+    # Hydration MSE
+    plt.subplot(2, 2, 2)
+    plt.plot(epochs_range, hydration_mse, label='Training Hydration MSE')
+    plt.plot(epochs_range, val_hydration_mse, label='Validation Hydration MSE')
+    plt.legend(loc='upper right')
+    plt.title('Hydration MSE')
+
+    # Nutrition MSE
+    plt.subplot(2, 2, 3)
+    plt.plot(epochs_range, nutrition_mse, label='Training Nutrition MSE')
+    plt.plot(epochs_range, val_nutrition_mse, label='Validation Nutrition MSE')
+    plt.legend(loc='upper right')
+    plt.title('Nutrition MSE')
+
+    # Lighting MSE
+    plt.subplot(2, 2, 4)
+    plt.plot(epochs_range, lighting_mse, label='Training Lighting MSE')
+    plt.plot(epochs_range, val_lighting_mse, label='Validation Lighting MSE')
+    plt.legend(loc='upper right')
+    plt.title('Lighting MSE')
+
+    plt.show()
 
 # after model is done training and compiling give user option in the console
 # to save it, load one, test a model, or exit

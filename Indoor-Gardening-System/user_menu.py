@@ -61,6 +61,7 @@ def test_model(model, image_shape, labels):
             npy_nparr = tf.keras.preprocessing.image.smart_resize(loaded_npy, (image_height, image_width))
             npy_nparr = np.array([npy_nparr])  # Convert single image to a batch.
             predictions = model.predict(npy_nparr)
+            predictions = np.array(predictions)
 
             print("Labels: " + str(labels) + "\n")
             print("Predictions: " + str(predictions) + "\n")

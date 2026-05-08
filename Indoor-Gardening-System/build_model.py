@@ -54,7 +54,14 @@ def load(npy_path, labels_path, image_height, image_width, batch_size):
     np_examples = tf.stack(list(sorted_examples.values()))
     np_labels = np.array(list(sorted_labels.values()))
     
-    dataset = tf.data.Dataset.from_tensor_slices((np_examples, np_labels))
+    dataset = tf.data.Dataset.from_tensor_slices((
+        np_examples,
+        {
+            'hydration': np_labels[:, 0],
+            'nutrition': np_labels[:, 1],
+            'lighting': np_labels[:, 2]
+        }
+    ))
 
     dataset = dataset.shuffle(seed=448, buffer_size=1000, reshuffle_each_iteration=False)
     train_size = int(0.7 * len(np_examples))
@@ -99,16 +106,24 @@ def build(input_shape, num_labels):
     x = layers.Dropout(0.1)(x)
     
     # Outputs (predicted value of each label)
-    model_output = layers.Dense(num_labels, activation='sigmoid')(x)
+    #model_output = layers.Dense(num_labels, activation='sigmoid')(x)
+    hydration = layers.Dense(1, activation='sigmoid', name='hydration')(x)
+    nutrition = layers.Dense(1, activation='sigmoid', name='nutrition')(x)
+    lighting = layers.Dense(1, activation='sigmoid', name='lighting')(x)
 
     # Build the model
-    model = models.Model(inputs=model_input, outputs=model_output)
+    model = models.Model(inputs=model_input, outputs=[hydration, nutrition, lighting])
 
     # Take the model and compile
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.004),
-        loss=tf.keras.losses.MeanSquaredError(),
-        metrics=["accuracy", "mse"],)
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.006),
+        loss={'hydration': 'mean_squared_error',
+              'nutrition': 'mean_squared_error',
+              'lighting': 'mean_squared_error'},
+        metrics={'hydration': ['mse'],
+                 'nutrition': ['mse'],
+                 'lighting': ['mse']}
+        )
 
     model.summary()
 
